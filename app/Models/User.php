@@ -20,6 +20,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'verified',
         'email',
         'filename',
         'path',
@@ -48,5 +49,10 @@ class User extends Authenticatable
     public function disasters():HasMany
     {
         return $this->hasMany(Disaster::class);
+    }
+
+    public function donations():HasMany
+    {
+        return $this->hasMany(Donation::class);
     }
 }

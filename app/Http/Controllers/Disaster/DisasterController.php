@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Disaster;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\DisasterRequest;
 use App\Models\Disaster as DisasterModel;
-use Illuminate\Http\Request;
-use App\Http\Models\Disaster;
+use App\Http\Requests\CreateDisasterRequest;
+use App\Http\Requests\UpdateDisasterRequest;
 use Illuminate\Support\Facades\Storage;
 
 class DisasterController extends Controller
@@ -14,14 +13,16 @@ class DisasterController extends Controller
 
     public function index()
     {
-        $disasters = DisasterModel::all();
-
+        //$disasters = DisasterModel::all();
+        $disasters = DisasterModel::orderBy('created_at', 'desc')->get();
+        $total_disasters = $disasters->count();
         return response([
-            'data' => $disasters
+            'data' => $disasters,
+            'total_disasters' => $total_disasters
         ], 200);
     }
 
-    public function store(DisasterRequest $request)
+    public function store(CreateDisasterRequest $request)
     {
         $request->validated();
 
@@ -62,44 +63,7 @@ class DisasterController extends Controller
         ], 200);
     }
 
-    // public function update(DisasterRequest $request, $id)
-    // {
-    //     $request->validated();
-    
-    //     $disaster = auth()->user()->disasters()->findOrFail($id);
-    
-    //     if ($request->hasFile('image')) {
-    //         // Delete previous image if it exists
-    //         Storage::disk('public')->delete($disaster->path);
-    
-    //         $image = $request->file('image');
-    //         $filename = time() . '.' . $image->getClientOriginalExtension();
-    //         $path = $image->storeAs('uploads', $filename, 'public');
-    //     } else {
-    //         // Keep the existing image if no new image is uploaded
-    //         $filename = $disaster->filename;
-    //         $path = $disaster->path;
-    //     }
-    
-    //     $disasterData = [
-    //         'title' => $request->title,
-    //         'date' => $request->date,
-    //         'disasterType' => $request->disasterType,
-    //         'location' => $request->location,
-    //         'information' => $request->information,
-    //         'filename' => $filename,
-    //         'path' => $path,
-    //     ];
-    
-    //     // Update the disaster record
-    //     $disaster->update($disasterData);
-    
-    //     return response([
-    //         'message' => 'The post was updated successfully'
-    //     ], 200);
-    // }
-
-    public function update(DisasterRequest $request, $id)
+    public function update(UpdateDisasterRequest $request, $id)
     {
         $request->validated();
         $disaster = DisasterModel::findOrFail($id);
