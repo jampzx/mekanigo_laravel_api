@@ -28,6 +28,11 @@ Route::post('logout',[AuthenticationController::class,'logout'])->middleware('au
 Route::get('users',[AuthenticationController::class,'users'])->middleware('auth:sanctum');
 Route::put('/user/update/{id}',[AuthenticationController::class,'update'])->middleware('auth:sanctum');
 
+//reset password
+Route::post('forgot',[AuthenticationController::class,'forgot']);
+Route::post('reset',[AuthenticationController::class,'reset']);
+
+
 //disasters
 Route::get('/disaster',[DisasterController::class,'index'])->middleware('auth:sanctum');
 Route::post('/disaster/store',[DisasterController::class,'store'])->middleware('auth:sanctum');
@@ -42,3 +47,7 @@ Route::post('/donation/store',[DonationController::class,'store'])->middleware('
 Route::get('/donation/edit/{id}', [DonationController::class, 'edit'])->middleware('auth:sanctum');
 Route::put('/donation/update/{id}', [DonationController::class, 'update'])->middleware('auth:sanctum'); 
 Route::delete('/donation/delete/{id}',[DonationController::class,'delete'])->middleware('auth:sanctum');
+//donation of user
+Route::get('/donation/user/{id}', [DonationController::class, 'getDonationPerUser'])->middleware('auth:sanctum'); 
+//donation per disaster
+Route::get('/donation/disaster/{id}', [DonationController::class, 'getDonationPerDisaster'])->middleware('auth:sanctum'); 

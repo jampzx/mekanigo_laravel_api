@@ -3,15 +3,105 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ForgotPasswordRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Models\PasswordReset as ModelsPasswordReset;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Notifications\ResetPassword as ResetPasswordNotification;
+use Illuminate\Support\Facades\Config;
+
+
 
 class AuthenticationController extends Controller
 {
+
+    public function forgot(ForgotPasswordRequest $request): JsonResponse
+    {
+        $user = User::where('email', $request->input('email'))->first();
+    
+        if (!$user || !$user->email) {
+            return response()->error('No Record Found', 'Incorrect Email Address Provided', 404);
+        }
+    
+        $resetPasswordToken = str_pad(random_int(1, 9999), 4, '0', STR_PAD_LEFT);
+    
+        if (!$userPassReset = ModelsPasswordReset::where('email', $user->email)->first()) {
+            ModelsPasswordReset::create([
+                'email' => $user->email,
+                'token' => $resetPasswordToken
+            ]);
+        } else {
+            $userPassReset->update([
+                'email' => $user->email,
+                'token' => $resetPasswordToken
+            ]);
+        }
+    
+        // Update the mail configuration before sending the notification
+        Config::set('mail.to.address', $user->email);
+        Config::set('mail.to.name', $user->name); // Assuming you have a 'name' attribute in your User model
+    
+        $user->notify(
+            new ResetPasswordNotification($resetPasswordToken)
+        );
+    
+        return new JsonResponse(['message' => 'A Code has been sent to your Email Address.'],201);
+    }
+
+    public function reset(ResetPasswordRequest $request)
+    {
+        $attributes = $request->validated();
+
+        $user = User::where('email', $attributes['email'])->first();
+
+        if(!$user){
+            //return response()->error('No Record Found', 'Incorrect Email Address Provided',404);
+            return response([
+                'message' => 'No Record Found', 'Incorrect Email Address Provided'
+            ],404);
+        }
+
+        $resetRequest = ModelsPasswordReset::where('email', $user->email)->first();
+
+        if(!$resetRequest || $resetRequest->token != $request->token){
+            //return response()->error('An Error Occured. Please Try Again', 'Token Mismatched.',400);
+            return response([
+                'message' => 'Your code is incorrect', 'Code Mismatched.'
+            ],400);
+        }
+
+        $user->fill([
+            'password' => Hash::make($attributes['password']),
+        ]);
+        $user->save();
+
+        $user->tokens()->delete();
+
+        $resetRequest->delete();
+
+        $token = $user->createToken('authToken')->plainTextToken;
+
+        // $loginResponse=[
+        //     'user'=>UserResource::make($user),
+        //     'token'=>$token
+        // ];
+
+        // return response()->success(
+        //     $token,
+        //     'Password Reset Success',201
+        // );
+        return response([
+            $token,
+            'message' => 'Password Reset Successful'
+        ],201);
+        
+    }
 
     public function users()
     {

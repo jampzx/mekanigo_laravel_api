@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Donation;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateDonationRequest;
 use App\Http\Requests\UpdateDonationRequest;
+use App\Models\Disaster;
 use App\Models\Donation;
+use App\Models\User;
 use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
 
@@ -87,6 +89,28 @@ class DonationController extends Controller
     
         return response([
             'message' => 'The donation was deleted successfully'
+        ], 200);
+    }
+
+    public function getDonationPerUser($id)
+    {
+        $user = User::findOrFail($id);
+        $donationPerUser = Donation::where('user_id', '=', $user->id)->orderBy('created_at', 'desc')->get();
+
+        return response([
+            'data' => $user,
+            'donation_of_user' => $donationPerUser
+        ], 200);
+    }
+
+    public function getDonationPerDisaster($id)
+    {
+        $disaster = Disaster::findOrFail($id);
+        $donationPerDisaster = Donation::where('disaster_id', '=', $disaster->id)->get();
+        $totalDonations = $donationPerDisaster->count();
+        return response([
+            'data' => $donationPerDisaster,
+            'total_donations' => $totalDonations
         ], 200);
     }
 }
