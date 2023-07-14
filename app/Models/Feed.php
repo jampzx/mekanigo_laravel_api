@@ -6,21 +6,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Donation extends Model
+class Feed extends Model
 {
     use HasFactory;
-
+    
     protected $fillable = [
         'user_id',
-        'verified',
-        'disaster_id',
-        'name',
-        'age',
-        'contact_number',
-        'email',
-        'donation_type',
-        'donation_info',
-        'goods_type'
+        'title',
+        'date',
+        'disasterType',
+        'location',
+        'information',
+        'filename',
+        'path',
     ];
 
     public function user():BelongsTo

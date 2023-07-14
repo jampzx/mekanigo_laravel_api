@@ -12,6 +12,7 @@ class Disaster extends Model
 
     protected $fillable = [
         'user_id',
+        'active',
         'title',
         'date',
         'disasterType',

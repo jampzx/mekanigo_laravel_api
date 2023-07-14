@@ -10,6 +10,10 @@ use App\Models\Donation;
 use App\Models\User;
 use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
+use App\Notifications\Donation as DonationNotification;
+use Illuminate\Support\Facades\Config;
+
+
 
 class DonationController extends Controller
 {
@@ -27,22 +31,31 @@ class DonationController extends Controller
     public function store(CreateDonationRequest $request)
     {
         $request->validated();
-
+    
         $donationData = [
-            'name'=>$request->name,
-            'age'=>$request->age,
-            'contact_number'=>$request->contact_number,
-            'email'=>$request->email,
-            'donation_type'=>$request->donation_type,
+            'name' => $request->name,
+            'age' => $request->age,
+            'contact_number' => $request->contact_number,
+            'email' => $request->email,
+            'donation_type' => $request->donation_type,
             'donation_info' => $request->donation_info,
-            'disaster_id' => $request->disaster_id
+            'disaster_id' => $request->disaster_id,
+            'goods_type' => $request->goods_type
         ];
-
-        //authenticated->get the user id->assign to donation user_id->create donation
-        auth()->user()->donations()->create($donationData);
+    
+        // Update the mail configuration before sending the notification
+        Config::set('mail.to.address', $request->email);
+        Config::set('mail.to.name', $request->name);
+    
+        $user = auth()->user();
+    
+        $user->notify(new DonationNotification($request->name, $request->age, $request->contact_number, $request->donation_type, $request->donation_info));
+    
+        $user->donations()->create($donationData);
+    
         return response([
             'message' => 'The post was created successfully'
-        ],201);
+        ], 201);
     }
 
     public function edit($id)

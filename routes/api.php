@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthenticationController;
 use App\Http\Controllers\Disaster\DisasterController;
 use App\Http\Controllers\Donation\DonationController;
+use App\Http\Controllers\FeedController;
 use App\Http\Controllers\StripePaymentController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +40,9 @@ Route::post('/disaster/store',[DisasterController::class,'store'])->middleware('
 Route::get('/disaster/edit/{id}', [DisasterController::class, 'edit'])->middleware('auth:sanctum');
 Route::post('/disaster/update/{id}', [DisasterController::class, 'update'])->middleware('auth:sanctum'); //use post method for update because it contains image and php has limitation in file/image handling
 Route::delete('/disaster/delete/{id}',[DisasterController::class,'delete'])->middleware('auth:sanctum');
+Route::get('/disaster/active',[DisasterController::class,'getActive'])->middleware('auth:sanctum');
+Route::get('/disaster/inactive',[DisasterController::class,'getInactive'])->middleware('auth:sanctum');
+Route::put('/disaster/updateActive/{id}',[DisasterController::class,'updateActive'])->middleware('auth:sanctum');
 
 //donations
 Route::post('donation/charge', [StripePaymentController::class, 'charge']); //payment in stripe
@@ -51,3 +55,11 @@ Route::delete('/donation/delete/{id}',[DonationController::class,'delete'])->mid
 Route::get('/donation/user/{id}', [DonationController::class, 'getDonationPerUser'])->middleware('auth:sanctum'); 
 //donation per disaster
 Route::get('/donation/disaster/{id}', [DonationController::class, 'getDonationPerDisaster'])->middleware('auth:sanctum'); 
+
+
+//feeds
+Route::get('/feed',[FeedController::class,'index'])->middleware('auth:sanctum');
+Route::post('/feed/store',[FeedController::class,'store'])->middleware('auth:sanctum');
+Route::get('/feed/edit/{id}', [FeedController::class, 'edit'])->middleware('auth:sanctum');
+Route::post('/feed/update/{id}', [FeedController::class, 'update'])->middleware('auth:sanctum'); //use post method for update because it contains image and php has limitation in file/image handling
+Route::delete('/feed/delete/{id}',[FeedController::class,'delete'])->middleware('auth:sanctum');

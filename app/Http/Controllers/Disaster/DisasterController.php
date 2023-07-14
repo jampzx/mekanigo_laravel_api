@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Disaster as DisasterModel;
 use App\Http\Requests\CreateDisasterRequest;
 use App\Http\Requests\UpdateDisasterRequest;
+use App\Http\Requests\UpdateDisasterStatus;
+use App\Http\Requests\UpdateDisasterStatusRequest;
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Storage;
 
 class DisasterController extends Controller
@@ -118,6 +121,41 @@ class DisasterController extends Controller
         return response([
             'message' => 'The post was deleted successfully'
         ], 200);
+    }
+
+    public function getActive()
+    {
+        $disasters = DisasterModel::where('active', '=', '1'  )->orderBy('created_at', 'desc')->get();
+        $total_disasters = $disasters->count();
+        return response([
+            'data' => $disasters,
+            'active' => $total_disasters
+        ], 200);
+    }
+
+    public function getInactive()
+    {
+        $disasters = DisasterModel::where('active', '=', '0'  )->orderBy('created_at', 'desc')->get();
+        $total_disasters = $disasters->count();
+        return response([
+            'data' => $disasters,
+            'inactive' => $total_disasters
+        ], 200);
+    }
+
+    public function updateActive(UpdateDisasterStatusRequest $request, $id)
+    {
+        $request->validated();
+        $disaster = DisasterModel::findOrFail($id);
+
+        $disasterData = [
+            'active' => $request->active,
+        ];
+
+        $disaster->update($disasterData);
+        return response([
+            'message' => 'The disaster was updated successfully'
+        ],201);
     }
     
 }

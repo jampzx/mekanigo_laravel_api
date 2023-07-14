@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
-class CreateDisasterRequest extends FormRequest
+class UpdateDisasterStatusRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -34,12 +34,7 @@ class CreateDisasterRequest extends FormRequest
     public function rules()
     {
         return [
-            'title'=>'required|min:1',
-            'date'=>'required|min:1',
-            'disasterType'=>'required|min:1',
-            'location'=>'required|min:1',
-            'information'=>'required|min:1',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', 
+            'active'=>'required|boolean',
         ];
     }
 }

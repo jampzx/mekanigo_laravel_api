@@ -41,6 +41,7 @@ class CreateDonationRequest extends FormRequest
             'email'=>'required|email',
             'donation_type'=>'required|min:2',
             'donation_info' => 'required|min:3',
+            'goods_type' => 'nullable' 
         ];
     }
 }

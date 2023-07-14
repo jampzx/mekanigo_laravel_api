@@ -62,4 +62,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Donation::class);
     }
+
+    public function feeds():HasMany
+    {
+        return $this->hasMany(Feed::class);
+    }
 }
