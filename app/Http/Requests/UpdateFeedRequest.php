@@ -31,11 +31,11 @@ class UpdateFeedRequest extends FormRequest
     public function rules()
     {
         return [
-            'title'=>'required|min:6',
-            'date'=>'required|min:6',
-            'disasterType'=>'required|min:6',
-            'location'=>'required|min:6',
-            'information'=>'required|min:6',
+            'title'=>'required|min:1',
+            'date'=>'required|min:1',
+            'disasterType'=>'required|min:1',
+            'location'=>'required|min:1',
+            'information'=>'required|min:1',
 
             //moving this rule to front end as image has issue/limitation in php PUT and PATCH method
             //'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', 
