@@ -27,11 +27,18 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'verified',
         'email',
+        'phone_number',
+        'age',
+        'address',
+        'password',
+        'user_type',
+        'open_close_time',
+        'open_close_day',
+        'latitude',
+        'longitude',
         'filename',
         'path',
-        'password',
     ];
 
     /**
@@ -53,18 +60,24 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function disasters():HasMany
-    {
-        return $this->hasMany(Disaster::class);
+    //a user may has many appointments
+    public function appointments(){
+        return $this->hasMany(Appointment::class, 'user_id');
     }
 
-    public function donations():HasMany
-    {
-        return $this->hasMany(Donation::class);
+    //each user id refer to one doctor id
+    public function shop(){
+        return $this->hasOne(Shops::class, 'shop_id');
     }
 
-    public function feeds():HasMany
-    {
-        return $this->hasMany(Feed::class);
+    //same go to user details
+    public function user_details(){
+        return $this->hasOne(UserDetails::class, 'user_id');
+    }
+
+
+    //a user may has many reviews
+    public function reviews(){
+        return $this->hasMany(Reviews::class, 'user_id');
     }
 }

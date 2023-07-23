@@ -5,15 +5,19 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ForgotPasswordRequest;
 use App\Http\Requests\LoginRequest;
-use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\RegisterUserRequest;
+use App\Http\Requests\RegisterShopRequest;
 use App\Http\Requests\ResetPasswordRequest;
-use App\Http\Requests\UpdateUserRequest;
+use App\Models\Appointment;
 use App\Models\PasswordReset as ModelsPasswordReset;
+use App\Models\Shops;
 use App\Models\User;
+use App\Models\UserDetails;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Notifications\ResetPassword as ResetPasswordNotification;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 
 
@@ -106,44 +110,57 @@ class AuthenticationController extends Controller
     public function users()
     {
         //get all users
-        $users = User::where('user_type', '!=', 'admin')
-                     ->orWhereNull('user_type')
+        $user_list = User::where('user_type', '!=', 'admin')
+                     ->orderBy('name', 'desc')
+                     ->get();
+    
+        //get all user count
+        $users = User::where('user_type', '=', 'user')
                      ->orderBy('name', 'desc')
                      ->get();
     
         $total_users = $users->count();
 
-        //get all verified users
-        $verified_users = User::where(function ($query) {
-            $query->where('user_type', '!=', 'admin')
-                  ->orWhereNull('user_type');
-        })
-        ->where('verified', 1)
-        ->orderBy('name', 'desc')
-        ->get();
-        $verified_users = $verified_users->count();
-
-        //get all unverified users
-        $unverified_users = User::where(function ($query) {
-            $query->where('user_type', '!=', 'admin')
-                  ->orWhereNull('user_type');
-        })
-        ->where('verified', 0)
-        ->orderBy('name', 'desc')
-        ->get();
-        $unverified_users = $unverified_users->count();
+        //get all shop count
+        $shops = User::where('user_type', '=', 'shop')
+                     ->orderBy('name', 'desc')
+                     ->get();
+    
+        $total_shops = $shops->count();
 
     
     
         return response([
-            'data' => $users,
-            'total_users' => $total_users,
-            'verified_users'=> $verified_users,
-            'unverified_users' => $unverified_users
+            'data' => $user_list,
+            'total_users'=> $total_users,
+            'total_shops' => $total_shops
         ], 200);
     }
 
-    public function register(RegisterRequest $request)
+    public function registerUser(RegisterUserRequest $request)
+    {
+        $request->validated();
+        $userData = [
+            'name'=>$request->name,
+            'email'=>$request->email,
+            'phone_number'=>$request->phone_number,
+            'age'=>$request->age,
+            'address'=>$request->address,
+            'user_type'=>$request->user_type,
+            'password'=>Hash::make($request->password),
+        ];
+
+        
+        $user = User::create($userData);
+        $token = $user->createToken('mekanigo')->plainTextToken;
+
+        return response([
+            'user'=>$user,
+            'token'=>$token
+        ],201);
+    }
+
+    public function registerShop(RegisterShopRequest $request)
     {
         $request->validated();
 
@@ -156,15 +173,20 @@ class AuthenticationController extends Controller
         $userData = [
             'name'=>$request->name,
             'email'=>$request->email,
+            'phone_number'=>$request->phone_number,
+            'address'=>$request->address,
+            'user_type'=>$request->user_type,
+            'open_close_time'=>$request->open_close_time,
+            'open_close_date'=>$request->open_close_date,
+            'latitude'=>$request->latitude,
+            'longitude'=>$request->longitude,
             'filename' => $filename,
             'path' => $path,
-            'verified' => false,
             'password'=>Hash::make($request->password),
         ];
-
         
         $user = User::create($userData);
-        $token = $user->createToken('donite')->plainTextToken;
+        $token = $user->createToken('mekanigo')->plainTextToken;
 
         return response([
             'user'=>$user,
@@ -202,27 +224,54 @@ class AuthenticationController extends Controller
             'message' => 'Logged out successfully'
         ], 200);
     }
-    
-    protected function credentials(Request $request)
+
+    public function index()
     {
-        $credentials = $request->only($this->username(), 'password');
-        $credentials['verified'] = 1; 
-        return $credentials;
+        $user = array(); //this will return a set of user and shop data
+        $user = Auth::user();
+        $shop = User::where('user_type', 'shop')->get();
+        $details = $user->user_details;
+        $shopData = Shops::all();
+        //this is the date format without leading
+        $date = now()->format('n/j/Y'); //change date format to suit the format in database
+
+        //make this appointment filter only status is "upcoming"
+        $appointment = Appointment::where('status', 'upcoming')->where('date', $date)->first();
+
+        //collect user data and all shop details
+        foreach($shopData as $data){
+            //sorting shop name and shop details
+            foreach($shop as $info){
+                if($data['shop_id'] == $info['id']){
+                    $data['shop_name'] = $info['name'];
+                    $data['shop_profile'] = $info['path'];
+                    if(isset($appointment) && $appointment['shop_id'] == $info['id']){
+                        $data['appointments'] = $appointment;
+                    }
+                }
+            }
+        }
+
+        $user['shop'] = $shopData;
+        $user['details'] = $details; //return user details here together with shop list
+
+        return $user; //return all data
     }
 
-    public function update(UpdateUserRequest $request, $id)
+    public function storeFavShop(Request $request)
     {
-        $request->validated();
-        $user = User::findOrFail($id);
 
-        $userData = [
-            'verified' => $request->verified,
-        ];
+        $saveFav = UserDetails::where('user_id',Auth::user()->id)->first();
 
-        $user->update($userData);
-        return response([
-            'message' => 'The user was updated successfully'
-        ],201);
+        $docList = json_encode($request->get('favList'));
+
+        //update fav list into database
+        $saveFav->fav = $docList;  //and remember update this as well
+        $saveFav->save();
+
+        return response()->json([
+            'success'=>'The Favorite List is updated',
+        ], 200);
     }
 
 }

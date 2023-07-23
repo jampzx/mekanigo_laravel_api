@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ModifyDisastersTable extends Migration
+class AddColumnToTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,9 @@ class ModifyDisastersTable extends Migration
      */
     public function up()
     {
-        Schema::table('disasters', function (Blueprint $table) {
-            $table->text('information')->change();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
         });
     }
 
@@ -25,8 +26,9 @@ class ModifyDisastersTable extends Migration
      */
     public function down()
     {
-        Schema::table('disasters', function (Blueprint $table) {
-            $table->string('information')->change(); // Revert the column type and length if needed
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('latitude');
+            $table->dropColumn('longitude');
         });
     }
 }

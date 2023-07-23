@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
-class UpdateUserRequest extends FormRequest
+class CreateAppointmentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -34,7 +34,12 @@ class UpdateUserRequest extends FormRequest
     public function rules()
     {
         return [
-            'verified'=>'required|boolean',
+            'shop_id'=>'required',
+            'shop_latitude'=>'required',
+            'shop_longitude'=>'required',
+            'date'=>'required',
+            'day'=>'required',
+            'time'=>'required',
         ];
     }
 }

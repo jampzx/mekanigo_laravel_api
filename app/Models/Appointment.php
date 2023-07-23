@@ -4,25 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Feed extends Model
+class Appointment extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'user_id',
-        'title',
+        'shop_id',
         'date',
-        'disasterType',
-        'location',
-        'information',
-        'filename',
-        'path',
+        'day',
+        'time',
+        'status',
+        'shop_latitude',
+        'shop_longitude'
     ];
 
-    public function user():BelongsTo
-    {
+    public function user(){
         return $this->belongsTo(User::class);
     }
 }

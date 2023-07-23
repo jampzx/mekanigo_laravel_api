@@ -17,11 +17,17 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->string('phone_number')->unique();
+            $table->string('age');
+            $table->string('address');
+            $table->string('user_type');
+            $table->string('open_close_time')->nullable(); //for repair shop
+            $table->string('open_close_date')->nullable(); //for repair shop
+            $table->string('landmark')->nullable(); //for repair shop
+            $table->string('filename')->nullable(); //for repair shop
+            $table->string('path')->nullable(); //for repair shop
             $table->string('password');
-            $table->string('filename');
-            $table->string('path');
-            $table->boolean('verified')->default(false);
+            $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
             

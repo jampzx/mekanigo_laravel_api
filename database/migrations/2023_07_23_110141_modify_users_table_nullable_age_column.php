@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddColumnToDisasters extends Migration
+class ModifyUsersTableNullableAgeColumn extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class AddColumnToDisasters extends Migration
      */
     public function up()
     {
-        Schema::table('disasters', function (Blueprint $table) {
-            $table->boolean('active')->default(true); // Example: Adding a nullable string column
-
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('age')->nullable()->change();
         });
     }
 
@@ -26,8 +25,8 @@ class AddColumnToDisasters extends Migration
      */
     public function down()
     {
-        Schema::table('disasters', function (Blueprint $table) {
-            $table->dropColumn('active');
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('age')->nullable(false)->change();
         });
     }
 }

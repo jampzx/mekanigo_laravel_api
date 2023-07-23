@@ -6,8 +6,13 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UpdateFeedRequest extends FormRequest
+class RegisterShopRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
     public function authorize()
     {
         return true;
@@ -27,18 +32,20 @@ class UpdateFeedRequest extends FormRequest
      *
      * @return array
      */
-
     public function rules()
     {
         return [
-            'title'=>'required|min:1',
-            'date'=>'required|min:1',
-            'disasterType'=>'required|min:1',
-            'location'=>'required|min:1',
-            'information'=>'required|min:1',
-
-            //moving this rule to front end as image has issue/limitation in php PUT and PATCH method
-            //'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', 
+            'name'=>'required|min:3',
+            'email'=>'required|email|unique:users',
+            'phone_number'=>'required|unique:users',
+            'address'=>'required|min:5',
+            'user_type'=>'required',
+            'open_close_time'=>'required|min:5',
+            'open_close_date'=>'required|min:5',
+            'latitude'=>'required',
+            'longitude'=>'required',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'password'=>'required|min:8',
         ];
     }
 }
