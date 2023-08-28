@@ -10,44 +10,50 @@ use Illuminate\Support\Facades\Auth;
 
 class AppointmentController extends Controller
 {
+    //Get appointments of authenticated user
     public function index()
     {
-        //retrieve all appointments from the user
-        $appointment = Appointment::where('user_id', Auth::user()->id)->get();
-        $shop = User::where('user_type', 'shop')->get();
-
-        //sorting appointment and shop details
-        //and get all related appointment
-        foreach($appointment as $data){
-            foreach($shop as $info){
-                if($data['shop_id'] == $info['id']){
-                    $data['shop_name'] = $info['name'];
-                    $data['shop_profile'] = $info['path']; //typo error found
+        // Retrieve all appointments from the user
+        $appointments = Appointment::where('user_id', Auth::user()->id)->orderBy('date', 'asc')->orderBy('time', 'asc')->get();
+        $shops = User::where('user_type', 'shop')->get();
+    
+        // Sorting appointment and shop details and get all related appointments
+        foreach ($appointments as $appointment) {
+            foreach ($shops as $shop) {
+                if ($appointment->shop_id == $shop->id) { // Use "->" instead of "['']" to access object properties
+                    $appointment->shop_name = $shop->name; // Assign shop name to the appointment object
+                    $appointment->shop_profile = $shop->path; // Corrected the field name
+                    $appointment->shop_address = $shop->address;
                 }
             }
         }
-
-        return $appointment;
+    
+        return response()->json([
+            'data' => $appointments,
+            'success' => 'Appointments retrieved successfully!',
+        ], 200);
     }
+    
 
+    //create appointment
     public function store(CreateAppointmentRequest $request)
     {
-        //this controller is to store booking details post from mobile app
+        // This controller is to store booking details posted from the mobile app
         $appointment = new Appointment();
         $appointment->user_id = Auth::user()->id;
         $appointment->shop_id = $request->get('shop_id');
-        $appointment->shop_id = $request->get('shop_latitude');
-        $appointment->shop_id = $request->get('shop_longitude');
+        $appointment->shop_latitude = $request->get('shop_latitude'); // Corrected field name
+        $appointment->shop_longitude = $request->get('shop_longitude'); // Corrected field name
         $appointment->date = $request->get('date');
-        $appointment->day = $request->get('day');
+        // $appointment->day = $request->get('day');
         $appointment->time = $request->get('time');
-        $appointment->status = 'upcoming'; //new appointment will be saved as 'upcoming' by default
+        $appointment->status = 'upcoming'; // New appointments will be saved as 'upcoming' by default
         $appointment->save();
-
-        //if successfully, return status code 200
+    
+        // If successful, return status code 200
         return response()->json([
-            'success'=>'New Appointment has been made successfully!',
+            'success' => 'New Appointment has been made successfully!',
         ], 200);
-
     }
+    
 }

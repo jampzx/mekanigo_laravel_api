@@ -38,7 +38,7 @@ class CreateAppointmentRequest extends FormRequest
             'shop_latitude'=>'required',
             'shop_longitude'=>'required',
             'date'=>'required',
-            'day'=>'required',
+            // 'day'=>'required',
             'time'=>'required',
         ];
     }

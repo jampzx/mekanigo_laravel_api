@@ -11,7 +11,7 @@ class ShopController extends Controller
 {
     public function index()
     {
-        //get doctor's appointment, patients and display on dashboard
+        //get shops's appointment, clients, reviews and display on dashboard
         $shop = Auth::user();
         $appointments = Appointment::where('shop_id', $shop->id)->where('status', 'upcoming')->get();
         $reviews = Reviews::where('shop_id', $shop->id)->where('status', 'active')->get();

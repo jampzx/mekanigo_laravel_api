@@ -80,4 +80,10 @@ class User extends Authenticatable
     public function reviews(){
         return $this->hasMany(Reviews::class, 'user_id');
     }
+
+    //this will get all shops with their respective reviews
+    public function reviews_for_shop()
+    {
+        return $this->hasMany(Reviews::class, 'shop_id');
+    }
 }

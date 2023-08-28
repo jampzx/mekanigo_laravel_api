@@ -34,18 +34,22 @@ Route::post('reset',[AuthenticationController::class,'reset']);
 
 Route::middleware('auth:sanctum')->group(function() {
     //auth shop
-    Route::get('shop', [AppointmentController::class, 'index']);
-    Route::post('shop/store', [AppointmentController::class, 'store']);
+    Route::get('appointments', [AppointmentController::class, 'index']);
+    Route::post('appointments/store', [AppointmentController::class, 'store']);
 
     //auth user
     Route::post('logout',[AuthenticationController::class,'logout']);
     Route::get('users',[AuthenticationController::class,'users']);
-    Route::get('index',[AuthenticationController::class,'index']);
+    Route::get('shops',[AuthenticationController::class,'shops']);
+    Route::get('topshops',[AuthenticationController::class,'topShops']);
+
+
+    Route::get('index',[AuthenticationController::class,'index']); //dont get this
     Route::post('fav',[AuthenticationController::class,'storeFavShop']);
 
-    //appointments
-    Route::get('appointments', [AppointmentController::class, 'index']);
-    Route::post('appointments/store', [AppointmentController::class, 'store']);
+    // //appointments
+    // Route::get('appointments', [AppointmentController::class, 'index']);
+    // Route::post('appointments/store', [AppointmentController::class, 'store']);
 
     //appointments
     Route::get('shopc/index', [ShopController::class, 'index']);

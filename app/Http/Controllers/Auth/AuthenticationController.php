@@ -137,6 +137,38 @@ class AuthenticationController extends Controller
         ], 200);
     }
 
+    public function shops()
+    {
+        // Get all shops along with their reviews
+        $shop_list = User::where('user_type', '=', 'shop')
+                        ->orderBy('name', 'desc')
+                        ->with('reviews_for_shop')
+                        ->get();
+    
+        return response([
+            'data' => $shop_list
+        ], 200);
+    }
+    
+
+
+    public function topShops()
+    {
+        // Get the top 5 shops with the highest average rating from the reviews table
+        $shop_list = User::where('user_type', '=', 'shop')
+                        ->with('reviews_for_shop')
+                        ->withCount('reviews')
+                        ->withAvg('reviews', 'ratings')
+                        ->orderByDesc('reviews_avg_ratings')
+                        ->take(5)
+                        ->get();
+
+        return response([
+            'data' => $shop_list
+        ], 200);
+    }
+
+
     public function registerUser(RegisterUserRequest $request)
     {
         $request->validated();
@@ -225,6 +257,7 @@ class AuthenticationController extends Controller
         ], 200);
     }
 
+    //dont get this
     public function index()
     {
         $user = array(); //this will return a set of user and shop data
@@ -233,7 +266,7 @@ class AuthenticationController extends Controller
         $details = $user->user_details;
         $shopData = Shops::all();
         //this is the date format without leading
-        $date = now()->format('n/j/Y'); //change date format to suit the format in database
+        $date = now()->format('Y-m-d'); //change date format to suit the format in database
 
         //make this appointment filter only status is "upcoming"
         $appointment = Appointment::where('status', 'upcoming')->where('date', $date)->first();
@@ -255,7 +288,10 @@ class AuthenticationController extends Controller
         $user['shop'] = $shopData;
         $user['details'] = $details; //return user details here together with shop list
 
-        return $user; //return all data
+        return response()->json([
+            'data'=>$user,
+            'date'=>$date
+        ], 200);
     }
 
     public function storeFavShop(Request $request)
