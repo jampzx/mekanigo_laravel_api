@@ -17,7 +17,13 @@ class Appointment extends Model
         'time',
         'status',
         'shop_latitude',
-        'shop_longitude'
+        'shop_longitude',
+        'name',
+        'contact_number',
+        'email',
+        'address',
+        'type',
+        'service'
     ];
 
     public function user(){

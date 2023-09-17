@@ -14,7 +14,7 @@ class AppointmentController extends Controller
     public function index()
     {
         // Retrieve all appointments from the user
-        $appointments = Appointment::where('user_id', Auth::user()->id)->orderBy('date', 'asc')->orderBy('time', 'asc')->get();
+        $appointments = Appointment::where('user_id', Auth::user()->id)->orderBy('date', 'desc')->orderBy('time', 'desc')->get();
         $shops = User::where('user_type', 'shop')->get();
     
         // Sorting appointment and shop details and get all related appointments
@@ -48,6 +48,11 @@ class AppointmentController extends Controller
         // $appointment->day = $request->get('day');
         $appointment->time = $request->get('time');
         $appointment->status = 'upcoming'; // New appointments will be saved as 'upcoming' by default
+        $appointment->name = $request->get('name');
+        $appointment->contact_number = $request->get('contact_number');
+        $appointment->email = $request->get('email');
+        $appointment->address = $request->get('address');
+        $appointment->type = $request->get('type');
         $appointment->save();
     
         // If successful, return status code 200

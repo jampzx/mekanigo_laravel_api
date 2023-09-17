@@ -35,8 +35,14 @@ class CreateAppointmentRequest extends FormRequest
     {
         return [
             'shop_id'=>'required',
-            'shop_latitude'=>'required',
-            'shop_longitude'=>'required',
+            'service'=>'required',
+            'name'=>'required',
+            'contact_number'=>'required',
+            'email'=>'required',
+            'address'=>'required',
+            'type'=>'required',
+            // 'shop_latitude'=>'required',
+            // 'shop_longitude'=>'required',
             'date'=>'required',
             // 'day'=>'required',
             'time'=>'required',
