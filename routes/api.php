@@ -30,12 +30,17 @@ Route::post('login',[AuthenticationController::class,'login']);
 Route::post('forgot',[AuthenticationController::class,'forgot']);
 Route::post('reset',[AuthenticationController::class,'reset']);
 
+//update shop account
+Route::post('shopc/update_shop_details/{shopId}', [AuthenticationController::class, 'updateShopDetails']);
 
 
 Route::middleware('auth:sanctum')->group(function() {
     //auth shop
     Route::get('appointments', [AppointmentController::class, 'index']);
+    Route::get('appointments/upcoming', [AppointmentController::class, 'get_upcoming']);
+    Route::get('appointments/completed', [AppointmentController::class, 'get_completed']);
     Route::post('appointments/store', [AppointmentController::class, 'store']);
+    Route::delete('appointments/delete/{id}', [AppointmentController::class, 'deleteAppointment']);
 
     //auth user
     Route::post('logout',[AuthenticationController::class,'logout']);
@@ -53,6 +58,16 @@ Route::middleware('auth:sanctum')->group(function() {
 
     //appointments
     Route::get('shopc/index', [ShopController::class, 'index']);
+    Route::get('shopc/profile', [ShopController::class, 'profile']);
+    Route::get('shopc/reviews', [ShopController::class, 'reviews']);
     Route::post('shopc/store', [ShopController::class, 'store']);
+    Route::get('shopc/appointment_emergency', [ShopController::class, 'getEmergencyAppointments']);
+    Route::get('shopc/appointment_get_pending', [ShopController::class, 'getAllPending']);
+    Route::get('shopc/appointment_get_upcoming', [ShopController::class, 'getAllUpcoming']);
+    Route::get('shopc/appointment_get_completed', [ShopController::class, 'getAllCompleted']);
+    Route::get('shopc/get_completed_and_rejected', [ShopController::class, 'getCompletedRejected']);
+    Route::post('shopc/appointment_accept', [ShopController::class, 'acceptAppointment']);
+    Route::post('shopc/appointment_reject', [ShopController::class, 'cancelAppointment']);
 
-});
+ });
+    

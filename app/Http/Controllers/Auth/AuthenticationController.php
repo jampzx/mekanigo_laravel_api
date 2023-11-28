@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ForgotPasswordRequest;
+use App\Http\Requests\UpdateShopRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterUserRequest;
 use App\Http\Requests\RegisterShopRequest;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Notifications\ResetPassword as ResetPasswordNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Storage;
 
 
 
@@ -308,6 +310,45 @@ class AuthenticationController extends Controller
         return response()->json([
             'success'=>'The Favorite List is updated',
         ], 200);
+    }
+
+    public function updateShopDetails(UpdateShopRequest $request, $shopId)
+    {
+        $request->validated();
+    
+        $shop = User::findOrFail($shopId);
+    
+        $updateData = [
+            'name' => $request->filled('name') ? $request->name : $shop->name,
+            'email' => $request->filled('email') ? $request->email : $shop->email,
+            'phone_number' => $request->filled('phone_number') ? $request->phone_number : $shop->phone_number,
+            'address' => $request->filled('address') ? $request->address : $shop->address,
+            'open_close_time' => $request->filled('open_close_time') ? $request->open_close_time : $shop->open_close_time,
+            'open_close_date' => $request->filled('open_close_date') ? $request->open_close_date : $shop->open_close_date,
+            'latitude' => $request->filled('latitude') ? $request->latitude : $shop->latitude,
+            'longitude' => $request->filled('longitude') ? $request->longitude : $shop->longitude,
+        ];
+    
+        // Update basic details
+        $shop->update($updateData);
+    
+        // Update image if provided
+        if ($request->hasFile('image')) {
+            // Delete the previous image file
+            Storage::disk('public')->delete($shop->path);
+    
+            // Upload and update new image
+            $image = $request->file('image');
+            $filename = time() . '.' . $image->getClientOriginalExtension();
+            $path = $image->storeAs('uploads', $filename, 'public');
+    
+            $shop->update([
+                'filename' => $filename,
+                'path' => $path,
+            ]);
+        }
+    
+        return response(['message' => 'Shop details updated successfully'], 201);
     }
 
 }

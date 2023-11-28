@@ -33,6 +33,52 @@ class AppointmentController extends Controller
             'success' => 'Appointments retrieved successfully!',
         ], 200);
     }
+
+    public function get_upcoming()
+    {
+        // Retrieve all pending appointments from the user
+        $appointments = Appointment::where('user_id', Auth::user()->id)->where('status', '!=', 'completed')->orderBy('date', 'desc')->orderBy('time', 'desc')->get();
+        $shops = User::where('user_type', 'shop')->get();
+    
+        // Sorting appointment and shop details and get all related appointments
+        foreach ($appointments as $appointment) {
+            foreach ($shops as $shop) {
+                if ($appointment->shop_id == $shop->id) { // Use "->" instead of "['']" to access object properties
+                    $appointment->shop_name = $shop->name; // Assign shop name to the appointment object
+                    $appointment->shop_profile = $shop->path; // Corrected the field name
+                    $appointment->shop_address = $shop->address;
+                }
+            }
+        }
+    
+        return response()->json([
+            'data' => $appointments,
+            'success' => 'Appointments retrieved successfully!',
+        ], 200);
+    }
+
+    public function get_completed()
+    {
+        // Retrieve all pending appointments from the user
+        $appointments = Appointment::where('user_id', Auth::user()->id)->where('status', '=', 'completed')->orderBy('date', 'desc')->orderBy('time', 'desc')->get();
+        $shops = User::where('user_type', 'shop')->get();
+    
+        // Sorting appointment and shop details and get all related appointments
+        foreach ($appointments as $appointment) {
+            foreach ($shops as $shop) {
+                if ($appointment->shop_id == $shop->id) { // Use "->" instead of "['']" to access object properties
+                    $appointment->shop_name = $shop->name; // Assign shop name to the appointment object
+                    $appointment->shop_profile = $shop->path; // Corrected the field name
+                    $appointment->shop_address = $shop->address;
+                }
+            }
+        }
+    
+        return response()->json([
+            'data' => $appointments,
+            'success' => 'Appointments retrieved successfully!',
+        ], 200);
+    }
     
 
     //create appointment
@@ -47,7 +93,7 @@ class AppointmentController extends Controller
         $appointment->date = $request->get('date');
         // $appointment->day = $request->get('day');
         $appointment->time = $request->get('time');
-        $appointment->status = 'upcoming'; // New appointments will be saved as 'upcoming' by default
+        $appointment->status = 'pending'; // New appointments will be saved as 'upcoming' by default
         $appointment->name = $request->get('name');
         $appointment->contact_number = $request->get('contact_number');
         $appointment->email = $request->get('email');
@@ -60,5 +106,24 @@ class AppointmentController extends Controller
             'success' => 'New Appointment has been made successfully!',
         ], 200);
     }
+
+    public function deleteAppointment($id)
+    {
+        $appointment = Appointment::find($id);
+
+        if (!$appointment) {
+            return response()->json([
+                'message' => 'Appointment not found',
+            ], 404); 
+        }
+
+        // Delete the appointment
+        $appointment->delete();
+
+        return response()->json([
+            'message' => 'Appointment has been cancelled successfully',
+        ], 200); // Return a 200 OK response
+    }
+
     
 }

@@ -34,7 +34,7 @@ class User extends Authenticatable
         'password',
         'user_type',
         'open_close_time',
-        'open_close_day',
+        'open_close_date',
         'latitude',
         'longitude',
         'filename',
