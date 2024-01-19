@@ -9,6 +9,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterUserRequest;
 use App\Http\Requests\RegisterShopRequest;
 use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\Appointment;
 use App\Models\PasswordReset as ModelsPasswordReset;
 use App\Models\Shops;
@@ -116,12 +117,12 @@ class AuthenticationController extends Controller
                      ->orderBy('name', 'desc')
                      ->get();
     
-        //get all user count
-        $users = User::where('user_type', '=', 'user')
+        //get all client count
+        $clients = User::where('user_type', '=', 'user')
                      ->orderBy('name', 'desc')
                      ->get();
     
-        $total_users = $users->count();
+        $total_clients = $clients->count();
 
         //get all shop count
         $shops = User::where('user_type', '=', 'shop')
@@ -134,8 +135,38 @@ class AuthenticationController extends Controller
     
         return response([
             'data' => $user_list,
-            'total_users'=> $total_users,
+            'total_clients'=> $total_clients,
             'total_shops' => $total_shops
+        ], 200);
+    }
+
+    public function shopList()
+    {
+        // Get all shops along with their reviews
+        $shop_list = User::where('user_type', '=', 'shop')
+                        ->orderBy('name', 'desc')
+                        ->get();
+
+        $total_shop_list = $shop_list->count();
+    
+        return response([
+            'data' => $shop_list,
+            'total_shop_list' => $total_shop_list
+        ], 200);
+    }
+    
+    public function clientList()
+    {
+        //get all users
+        $clients = User::where('user_type', '=', 'user')
+                     ->orderBy('name', 'desc')
+                     ->get();
+
+        $total_clients = $clients->count();
+    
+        return response([
+            'data' => $clients,
+            'total_clients' => $total_clients
         ], 200);
     }
 
@@ -216,6 +247,7 @@ class AuthenticationController extends Controller
             'longitude'=>$request->longitude,
             'filename' => $filename,
             'path' => $path,
+            'services' =>$request->services,
             'password'=>Hash::make($request->password),
         ];
         
@@ -350,5 +382,35 @@ class AuthenticationController extends Controller
     
         return response(['message' => 'Shop details updated successfully'], 201);
     }
+
+    public function archive($id,$status)
+    {
+        $user = User::findOrFail($id);
+    
+        $user->update([
+            'status' => $status,
+        ]);
+    
+        return response([
+            'message' => 'The user was updated successfully'
+        ], 201);
+    }
+    
+
+
+    // public function update(UpdateUserRequest $request, $id)
+    // {
+    //     $request->validated();
+    //     $user = User::findOrFail($id);
+
+    //     $userData = [
+    //         'verified' => $request->verified,
+    //     ];
+
+    //     $user->update($userData);
+    //     return response([
+    //         'message' => 'The user was updated successfully'
+    //     ],201);
+    // }
 
 }

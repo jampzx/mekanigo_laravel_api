@@ -14,7 +14,7 @@ class AppointmentController extends Controller
     public function index()
     {
         // Retrieve all appointments from the user
-        $appointments = Appointment::where('user_id', Auth::user()->id)->orderBy('date', 'desc')->orderBy('time', 'desc')->get();
+        $appointments = Appointment::where('user_id', Auth::user()->id)->orderBy('type', 'asc')->orderBy('date', 'desc')->orderBy('time', 'desc')->get();
         $shops = User::where('user_type', 'shop')->get();
     
         // Sorting appointment and shop details and get all related appointments
@@ -37,7 +37,7 @@ class AppointmentController extends Controller
     public function get_upcoming()
     {
         // Retrieve all pending appointments from the user
-        $appointments = Appointment::where('user_id', Auth::user()->id)->where('status', '!=', 'completed')->orderBy('date', 'desc')->orderBy('time', 'desc')->get();
+        $appointments = Appointment::where('user_id', Auth::user()->id)->where('status', '!=', 'completed')->orderBy('type', 'asc')->orderBy('date', 'asc')->orderBy('time', 'asc')->get();
         $shops = User::where('user_type', 'shop')->get();
     
         // Sorting appointment and shop details and get all related appointments
@@ -99,6 +99,10 @@ class AppointmentController extends Controller
         $appointment->email = $request->get('email');
         $appointment->address = $request->get('address');
         $appointment->type = $request->get('type');
+        $appointment->service = $request->get('service');
+        $appointment->total_amount = $request->get('total_amount');
+        $appointment->transaction_fee = $request->get('transaction_fee');
+        $appointment->mechanic_fee = $request->get('mechanic_fee');
         $appointment->save();
     
         // If successful, return status code 200

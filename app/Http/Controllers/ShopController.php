@@ -6,7 +6,8 @@ use App\Models\Appointment;
 use App\Models\Reviews;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\Notifications\RejectAppointment as RejectAppointmentNotification;
+use Illuminate\Support\Facades\Config;
 class ShopController extends Controller
 {
     
@@ -182,6 +183,11 @@ class ShopController extends Controller
         //this is to update the appointment status from "upcoming" to "complete"
         $appointment = Appointment::where('id', $request->get('appointment_id'))->first();
 
+        $email = $appointment->email;
+        $name = $appointment->name;
+        $transaction_fee = $appointment->transaction_fee;
+        $remarks = $request->get('remarks');
+
         if (!$appointment) {
             return response()->json([
                 'error' => 'The appointment does not exist.',
@@ -190,7 +196,16 @@ class ShopController extends Controller
 
         //change appointment status
         $appointment->status = 'rejected';
+        $appointment->remarks = $request->get('remarks');
         $appointment->save();
+
+        // Update the mail configuration before sending the notification
+        Config::set('mail.to.address', $email);
+        Config::set('mail.to.name', $name);
+    
+        $user = auth()->user();
+    
+        $user->notify(new RejectAppointmentNotification($name, $transaction_fee,$remarks));            
 
         return response()->json([
             'success'=>'The appointment has been rejected successfully!',

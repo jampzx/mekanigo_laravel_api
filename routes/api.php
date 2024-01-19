@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticationController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\StripePaymentController;
 use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +33,7 @@ Route::post('reset',[AuthenticationController::class,'reset']);
 
 //update shop account
 Route::post('shopc/update_shop_details/{shopId}', [AuthenticationController::class, 'updateShopDetails']);
+Route::post('archive/{id}/{status}', [AuthenticationController::class, 'archive']);
 
 
 Route::middleware('auth:sanctum')->group(function() {
@@ -46,6 +48,8 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::post('logout',[AuthenticationController::class,'logout']);
     Route::get('users',[AuthenticationController::class,'users']);
     Route::get('shops',[AuthenticationController::class,'shops']);
+    Route::get('client_list',[AuthenticationController::class,'clientList']);
+    Route::get('shop_list',[AuthenticationController::class,'shopList']);
     Route::get('topshops',[AuthenticationController::class,'topShops']);
 
 
@@ -69,5 +73,6 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::post('shopc/appointment_accept', [ShopController::class, 'acceptAppointment']);
     Route::post('shopc/appointment_reject', [ShopController::class, 'cancelAppointment']);
 
+    Route::post('transaction/charge', [StripePaymentController::class, 'charge']); //payment in stripe
  });
     

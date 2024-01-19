@@ -39,6 +39,8 @@ class User extends Authenticatable
         'longitude',
         'filename',
         'path',
+        'services',
+        'status'
     ];
 
     /**

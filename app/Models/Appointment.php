@@ -23,7 +23,11 @@ class Appointment extends Model
         'email',
         'address',
         'type',
-        'service'
+        'service',
+        'remarks',
+        'total_amount', 
+        'transaction_fee', 
+        'mechanic_fee'
     ];
 
     public function user(){
