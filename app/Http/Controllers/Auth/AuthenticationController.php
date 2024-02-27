@@ -7,6 +7,7 @@ use App\Http\Requests\ForgotPasswordRequest;
 use App\Http\Requests\UpdateShopRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterUserRequest;
+use App\Http\Requests\RegisterVerificationRequest;
 use App\Http\Requests\RegisterShopRequest;
 use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -22,7 +23,9 @@ use App\Notifications\ResetPassword as ResetPasswordNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
-
+use App\Models\VerificationCode;
+use App\Notifications\VerificationCode as VerificationCodeNotification;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 
 class AuthenticationController extends Controller
@@ -258,6 +261,63 @@ class AuthenticationController extends Controller
             'user'=>$user,
             'token'=>$token
         ],201);
+    }
+
+    public function verifyVerificationCode(Request $request)
+    {
+        $email = $request->get('email');
+        $code = $request->get('code');
+    
+        $verification = VerificationCode::where('email', $email)->where('code', $code)->first();
+    
+        if (!$verification) {
+            return response()->json(['message' => 'Invalid verification code'], 400);
+        }
+    
+        // Verification successful, delete the verification code
+        $verification->delete();
+    
+        return response()->json(['message' => 'Verification successful'], 200);
+    }
+    
+    
+
+    public function registerWithVerification(RegisterVerificationRequest $request)
+    {
+        $attributes = $request->validated();
+    
+        // Check if the email is already registered
+        if (User::where('email', $attributes['email'])->exists()) {
+            return response()->json(['message' => 'Email already registered'], 400);
+        }
+    
+        // Generate a random verification code
+        $verificationCode = str_pad(random_int(1, 9999), 4, '0', STR_PAD_LEFT);
+    
+        // Store the verification code in the database
+        VerificationCode::create([
+            'email' => $attributes['email'],
+            'code' => $verificationCode,
+        ]);
+    
+        $user = new User(['email' => $attributes['email']]);
+        $user->notify(new VerificationCodeNotification($verificationCode));
+    
+        return response()->json(['message' => 'Verification code has been sent to your Email Address.'], 200);
+    }
+    
+
+    public function verifyCode($email, $verificationCode)
+    {
+        $user = VerificationCode::findOrFail($email);
+    
+        $user->update([
+            'status' => $status,
+        ]);
+    
+        return response([
+            'message' => 'The user was updated successfully'
+        ], 201);
     }
 
     public function login(LoginRequest $request)

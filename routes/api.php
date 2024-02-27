@@ -26,6 +26,8 @@ use Illuminate\Support\Facades\Route;
 Route::post('register/user',[AuthenticationController::class,'registerUser']);
 Route::post('register/shop',[AuthenticationController::class,'registerShop']);
 Route::post('login',[AuthenticationController::class,'login']);
+Route::post('register/send_email_verification',[AuthenticationController::class,'registerWithVerification']);
+Route::post('register/verify',[AuthenticationController::class,'verifyVerificationCode']);
 
 //reset password
 Route::post('forgot',[AuthenticationController::class,'forgot']);
